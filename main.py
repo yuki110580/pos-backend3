@@ -46,6 +46,7 @@ class Item(BaseModel):
     code: str
     name: str
     price: int
+    qty: int
 
 class PurchaseRequest(BaseModel):
     emp_cd: str = ""
