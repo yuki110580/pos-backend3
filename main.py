@@ -63,6 +63,7 @@ def purchase(req: PurchaseRequest):
     # result = create_transaction(req.emp_cd, req.items)
     now = datetime.now()
     total_amount = sum(item.price * item.qty for item in req.items)
+    total_ex_tax = int(total_amount / 1.1)
 
     print("=== 購入リクエスト受信 ===")
     print("合計金額:", total_amount)
@@ -100,7 +101,11 @@ def purchase(req: PurchaseRequest):
         print(detail_result)
 
 
-    return {"message": "success"}
+    return {
+        "success": True,
+        "total": total_amount,
+        "total_ex_tax": total_ex_tax
+    }
 
 def create_transaction(emp_cd, items):
     total = sum(item["price"] for item in items)
