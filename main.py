@@ -64,6 +64,10 @@ def purchase(req: PurchaseRequest):
     now = datetime.now()
     total_amount = sum(item.price * item.qty for item in req.items)
 
+    print("=== 購入リクエスト受信 ===")
+    print("合計金額:", total_amount)
+    print("従業員コード:", req.emp_cd)
+
     transaction = supabase.table("transactions").insert({
         "datetime": now.isoformat(),
         "emp_cd": req.emp_cd,
@@ -72,10 +76,18 @@ def purchase(req: PurchaseRequest):
         "total_amount": total_amount
     }).execute()
 
+    print("=== トランザクション登録結果 ===")
+    print(transaction)
+
+    # エラーハンドリング追加
+    if not transaction.data:
+        raise HTTPException(status_code=500, detail="トランザクション登録に失敗")
+
+
     trd_id = transaction.data[0]["trd_id"]
 
     for item in req.items:
-        supabase.table("transaction_details").insert({
+        detail_result = supabase.table("transaction_details").insert({
             "trd_id": trd_id,
             "prd_code": item.code,
             "prd_name": item.name,
@@ -83,6 +95,9 @@ def purchase(req: PurchaseRequest):
             "qty": item.qty,
             "tax_cd": "A"
         }).execute()
+
+        print("=== 明細登録結果 ===")
+        print(detail_result)
 
 
     return {"message": "success"}
