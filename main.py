@@ -1,14 +1,23 @@
 from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from db import SessionLocal
 from crud import get_product
+import os
 
 app = FastAPI()
+
+# 開発環境と本番環境の両方に対応するCORS設定
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    # 本番環境のURLを追加する場合はここに追加
+]
 
 # CORSの設定を追加
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # フロントエンドのURL
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +36,7 @@ def read_item(code: int):
                 "price": item.PRICE
             }
         else:
-            return None
+            raise HTTPException(status_code=404, detail="Item not found")
     finally:
         db.close()
 
@@ -47,6 +56,9 @@ class PurchaseRequest(BaseModel):
 
 @app.post("/purchase")
 def purchase(req: PurchaseRequest):
+    if not req.items:
+        raise HTTPException(status_code=422, detail="購入商品が1件もありません")
+
     db = SessionLocal()
     try:
         result = create_transaction(db, req.emp_cd, [item.dict() for item in req.items])

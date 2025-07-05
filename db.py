@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from config import settings
 
-# 自分のMySQLパスワードに置き換えてください！
-DB_URL = "mysql+pymysql://root:Pinya216%@localhost:3306/pos_db"
+# SupabaseのPostgreSQL接続URLを使用
+DB_URL = settings.DATABASE_URL
 
 engine = create_engine(DB_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
