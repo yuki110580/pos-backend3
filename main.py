@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
+from datetime import datetime
+
 import os
 
 from crud import get_product, create_transaction  # Supabase用に書き直してある想定
@@ -57,5 +59,29 @@ def purchase(req: PurchaseRequest):
     if not req.items:
         raise HTTPException(status_code=422, detail="購入商品が1件もありません")
 
-    result = create_transaction(req.emp_cd, req.items)
-    return result
+    # result = create_transaction(req.emp_cd, req.items)
+    now = datetime.now()
+    total_amount = sum(item.price * item.qty for item in req.items)
+
+    transaction = supabase.table("transactions").insert({
+        "datetime": now.isoformat(),
+        "emp_cd": req.emp_cd,
+        "store_cd": "001",
+        "pos_no": "001",
+        "total_amount": total_amount
+    }).execute()
+
+    trd_id = transaction.data[0]["id"]
+
+    for item in req.items:
+        supabase.table("transaction_details").insert({
+            "trd_id": trd_id,
+            "prd_code": item.code,
+            "prd_name": item.name,
+            "prd_price": item.price,
+            "qty": item.qty,
+            "tax_cd": "A"
+        }).execute()
+
+
+    return {"message": "success"}
