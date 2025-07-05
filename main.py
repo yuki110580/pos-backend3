@@ -69,4 +69,4 @@ def purchase(req: PurchaseRequest):
 # 一時的に main.py に以下を追加しておくと自動作成されます（最初の1回だけ）
 from models import Base, Product, Transaction, TransactionDetail
 from db import engine
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)  # 一時的にコメントアウト
