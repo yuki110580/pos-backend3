@@ -20,6 +20,7 @@ def create_transaction(emp_cd: str, items: list):
     transaction_id = trans_resp.data[0]["id"]
 
     # 2. 取引詳細の登録
+    total = 0
     for item in items:
         supabase.table("transaction_details").insert({
             "transaction_id": transaction_id,
@@ -28,7 +29,8 @@ def create_transaction(emp_cd: str, items: list):
             "name": item.name,
             "price": item.price
         }).execute()
+        total += item.price
 
-    return {"message": "Transaction completed", "transaction_id": transaction_id}
+    return {"message": "Transaction completed", "transaction_id": transaction_id, "total": total}
 
 
