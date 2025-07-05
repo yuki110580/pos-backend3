@@ -72,7 +72,7 @@ def purchase(req: PurchaseRequest):
         "total_amount": total_amount
     }).execute()
 
-    trd_id = transaction.data[0]["trdi_id"]
+    trd_id = transaction.data[0]["trd_id"]
 
     for item in req.items:
         supabase.table("transaction_details").insert({
