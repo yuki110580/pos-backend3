@@ -72,7 +72,7 @@ def purchase(req: PurchaseRequest):
         "total_amount": total_amount
     }).execute()
 
-    trd_id = transaction.data[0]["id"]
+    trd_id = transaction.data[0]["trdi_id"]
 
     for item in req.items:
         supabase.table("transaction_details").insert({
@@ -86,3 +86,13 @@ def purchase(req: PurchaseRequest):
 
 
     return {"message": "success"}
+
+def create_transaction(emp_cd, items):
+    total = sum(item["price"] for item in items)
+    total_ex_tax = int(total / 1.1)
+
+    return {
+        "success": True,
+        "total": total,
+        "total_ex_tax": total_ex_tax
+    }
